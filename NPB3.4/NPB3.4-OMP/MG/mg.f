@@ -79,6 +79,7 @@ c---------------------------------------------------------------------------c
 !$    integer  omp_get_max_threads
 !$    external omp_get_max_threads
 
+      external :: getpid, system
 
       do i = T_init, T_last
          call timer_clear(i)
@@ -244,6 +245,8 @@ c---------------------------------------------------------------------
       old2 = rnm2
       oldu = rnmu
 
+      call execute_command(0)
+
       do  it=1,nit
          if (it.eq.1 .or. it.eq.nit .or. mod(it,5).eq.0) then
             write(*,80) it
@@ -255,6 +258,8 @@ c---------------------------------------------------------------------
          if (timeron) call timer_start(T_resid2)
          call resid(u,v,r,n1,n2,n3,a,k)
          if (timeron) call timer_stop(T_resid2)
+
+         call execute_command(it)
       enddo
 
 
@@ -1432,5 +1437,37 @@ c---------------------------------------------------------------------
       return
       end
 
+      subroutine execute_command(iteration)
+         implicit none
+         integer, intent(in) :: iteration
+         character(len=256) :: command
+         integer :: pid, tid, ierr
+         integer :: getpid
+         integer :: system
+!$       integer :: omp_get_thread_num
+!$       external omp_get_thread_num
+
+!$omp parallel private(command, tid, ierr)
+         ! Get the process ID and thread ID
+         pid = getpid()
+!$       tid = omp_get_thread_num() + pid
+
+         ! Write iteration, PID, and TID to log file
+         write(command, '(A,I0,A,I0,A,I0,A)') 
+     >        'echo "Iteration: ', iteration, 
+     >        ' PID: ', pid, 
+     >        ' TID: ', tid, 
+     >        '" >> pgrbd.log'
+         ierr = system(command)
+
+         ! Cat the page reclaim breakdown
+         write(command, '(A,I0,A,I0,A)') 
+     >        'cat /proc/', pid, 
+     >        '/task/', tid, 
+     >        '/page_reclaim_breakdown >> pgrbd.log'
+         ierr = system(command)
+!$omp end parallel
+
+      end subroutine execute_command
 
 c----- end of program ------------------------------------------------

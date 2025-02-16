@@ -80,6 +80,7 @@ c---------------------------------------------------------------------------c
 !$    external omp_get_max_threads
 
       external :: getpid, system
+      double precision :: start_time, end_time, elapsed_time
 
       do i = T_init, T_last
          call timer_clear(i)
@@ -252,12 +253,21 @@ c---------------------------------------------------------------------
             write(*,80) it
    80       format('  iter ',i3)
          endif
+
+         call cpu_time(start_time)
+
          if (timeron) call timer_start(T_mg3P)
          call mg3P(u,v,r,a,c,n1,n2,n3,k)
          if (timeron) call timer_stop(T_mg3P)
          if (timeron) call timer_start(T_resid2)
          call resid(u,v,r,n1,n2,n3,a,k)
          if (timeron) call timer_stop(T_resid2)
+
+         call cpu_time(end_time)
+         elapsed_time = end_time - start_time
+         
+   90    format('Iteration ',i3,' execution time: ',f10.6,' seconds')
+         write(*, 90) it, elapsed_time
 
          call execute_command(it)
       enddo
@@ -1450,21 +1460,21 @@ c---------------------------------------------------------------------
 !$omp parallel private(command, tid, ierr)
          ! Get the process ID and thread ID
          pid = getpid()
-!$       tid = omp_get_thread_num() + pid
+!$       tid = omp_get_thread_num()
 
          ! Write iteration, PID, and TID to log file
-         write(command, '(A,I0,A,I0,A,I0,A)') 
+         write(command, '(A,I0,A,I0,A)') 
      >        'echo "Iteration: ', iteration, 
-     >        ' PID: ', pid, 
-     >        ' TID: ', tid, 
-     >        '" >> pgrbd.log'
+     >        '" >> mgD_tid_', tid, 
+     >        '.log'
          ierr = system(command)
 
          ! Cat the page reclaim breakdown
-         write(command, '(A,I0,A,I0,A)') 
+         write(command, '(A,I0,A,I0,A,I0,A)') 
      >        'cat /proc/', pid, 
-     >        '/task/', tid, 
-     >        '/page_reclaim_breakdown >> pgrbd.log'
+     >        '/task/', tid + pid, 
+     >        '/page_reclaim_breakdown >> mgD_tid_', tid, 
+     >        '.log'
          ierr = system(command)
 !$omp end parallel
 

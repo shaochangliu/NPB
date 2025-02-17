@@ -8,7 +8,7 @@ if [ ! -e "$CGROUP_PATH" ]; then
   sudo mkdir $CGROUP_PATH
 fi
 
-echo 26000000000 | sudo tee $MEMMAX_PATH
+echo 27917287424 | sudo tee $MEMMAX_PATH
 echo $$ | sudo tee $PROCS_PATH
 
 LRU_STATE=$(cat /sys/kernel/mm/lru_gen/enabled)

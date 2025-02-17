@@ -1,0 +1,28 @@
+# Ignore Fortran object files
+*.o
+
+# Ignore Fortran module files
+*.mod
+
+# Ignore executables (e.g., output of the build process)
+my_program
+*.[eE][xX][eE]
+
+# Ignore core dumps (often generated on crash)
+core
+
+# Ignore compiler-specific files
+*.dSYM/           # For macOS
+*.gfortran*
+
+# Ignore generated makefiles or other build artifacts
+Makefile
+Makefile.in
+Makefile.am
+
+# Ignore directories for build artifacts (optional)
+build/
+bin/
+obj/
+
+*.log

@@ -81,6 +81,8 @@ c---------------------------------------------------------------------------c
 
       external :: getpid, system
       double precision :: start_time, end_time, elapsed_time
+!$    double precision omp_get_wtime
+!$    external omp_get_wtime
 
       do i = T_init, T_last
          call timer_clear(i)
@@ -254,7 +256,7 @@ c---------------------------------------------------------------------
    80       format('  iter ',i3)
          endif
 
-         call cpu_time(start_time)
+         start_time = omp_get_wtime()
 
          if (timeron) call timer_start(T_mg3P)
          call mg3P(u,v,r,a,c,n1,n2,n3,k)
@@ -263,7 +265,7 @@ c---------------------------------------------------------------------
          call resid(u,v,r,n1,n2,n3,a,k)
          if (timeron) call timer_stop(T_resid2)
 
-         call cpu_time(end_time)
+         end_time = omp_get_wtime()
          elapsed_time = end_time - start_time
          
    90    format('Iteration ',i3,' execution time: ',f10.6,' seconds')

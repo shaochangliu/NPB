@@ -249,6 +249,7 @@ c---------------------------------------------------------------------
       oldu = rnmu
 
       call execute_command(0)
+      call write_swap_log_enable()
 
       do  it=1,nit
          if (it.eq.1 .or. it.eq.nit .or. mod(it,5).eq.0) then
@@ -274,6 +275,7 @@ c---------------------------------------------------------------------
          call execute_command(it)
       enddo
 
+      call write_swap_log_disable()
 
       call norm2u3(r,n1,n2,n3,rnm2,rnmu,nx(lt),ny(lt),nz(lt))
 
@@ -1449,6 +1451,8 @@ c---------------------------------------------------------------------
       return
       end
 
+c---------------------------------------------------------------------
+
       subroutine execute_command(iteration)
          implicit none
          integer, intent(in) :: iteration
@@ -1459,9 +1463,9 @@ c---------------------------------------------------------------------
 !$       integer :: omp_get_thread_num
 !$       external omp_get_thread_num
 
-!$omp parallel private(command, tid, ierr)
          ! Get the process ID and thread ID
          pid = getpid()
+!$omp parallel private(command, tid, ierr)
 !$       tid = omp_get_thread_num()
 
          ! Write iteration, PID, and TID to log file
@@ -1480,6 +1484,32 @@ c---------------------------------------------------------------------
          ierr = system(command)
 !$omp end parallel
 
+         command = "cat /sys/fs/cgroup/swap_log/memory.swap.current"
+         ierr = system(command)
       end subroutine execute_command
+
+c---------------------------------------------------------------------
+
+      subroutine write_swap_log_enable()
+         implicit none
+         integer :: ierr
+         character(len=128) :: command
+         integer :: system
+         
+         command = 'echo "1" > /proc/swap_log_ctl'
+         ierr = system(command)
+      end subroutine write_swap_log_enable
+
+c---------------------------------------------------------------------
+
+      subroutine write_swap_log_disable()
+         implicit none
+         integer :: ierr
+         character(len=128) :: command
+         integer :: system
+         
+         command = 'echo "0" > /proc/swap_log_ctl'
+         ierr = system(command)
+      end subroutine write_swap_log_disable
 
 c----- end of program ------------------------------------------------

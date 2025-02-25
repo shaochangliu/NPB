@@ -497,7 +497,7 @@ void write_mg_info(FILE *fp, char class)
   else if (class == 'A') { problem_size = 256; nit = 4; }
   else if (class == 'B') { problem_size = 256; nit = 20; }
   else if (class == 'C') { problem_size = 512; nit = 20; }
-  else if (class == 'D') { problem_size = 1024; nit = 10; } // default: 50
+  else if (class == 'D') { problem_size = 1024; nit = 20; } // default: 50
   else if (class == 'E') { problem_size = 2048; nit = 50; }
   else if (class == 'F') { problem_size = 4096; nit = 50; }
   else {

@@ -60,6 +60,11 @@ c---------------------------------------------------------------------
 !$     integer  omp_get_max_threads
 !$     external omp_get_max_threads
 
+       external :: getpid, system
+       double precision :: start_time, end_time, elapsed_time
+!$    double precision omp_get_wtime
+!$    external omp_get_wtime
+
 c---------------------------------------------------------------------
 c      Read input file (if it exists), else take
 c      defaults from parameters
@@ -151,16 +156,30 @@ c---------------------------------------------------------------------
        end do
        call timer_start(1)
 
+       call cat_swap_breakdown(0)
+       call write_swap_log_enable()
+
        do  step = 1, niter
 
           if (mod(step, 20) .eq. 0 .or. step .eq. 1) then
              write(*, 200) step
  200         format(' Time step ', i4)
           endif
+         
+          start_time = omp_get_wtime()
 
           call adi
 
+          end_time = omp_get_wtime()
+          elapsed_time = end_time - start_time
+
+ 210      format('Iteration ',i3,' execution time: ',f10.6,' seconds')
+          write(*, 210) step, elapsed_time
+
+          call cat_swap_breakdown(step)
        end do
+
+       call write_swap_log_disable()
 
        call timer_stop(1)
        tmax = timer_read(1)
@@ -218,3 +237,69 @@ c---------------------------------------------------------------------
  999   continue
 
        end
+
+c---------------------------------------------------------------------
+
+      subroutine cat_swap_breakdown(iteration)
+         implicit none
+         integer, intent(in) :: iteration
+         character(len=256) :: command
+         integer :: pid, tid, ierr
+         integer :: getpid
+         integer :: system
+!$       integer :: omp_get_thread_num
+!$       external omp_get_thread_num
+
+         ! Get the process ID and thread ID
+         pid = getpid()
+!$omp parallel private(command, tid, ierr)
+!$       tid = omp_get_thread_num()
+
+         ! Write iteration, PID, and TID to log file
+         write(command, '(A,I0,A,I0,A)') 
+     >        'echo "Iteration: ', iteration, 
+     >        '" >> spD_tid_', tid, 
+     >        '.log'
+         ierr = system(command)
+
+         ! Cat the page reclaim breakdown
+         write(command, '(A,I0,A,I0,A,I0,A)') 
+     >        'cat /proc/', pid, 
+     >        '/task/', tid + pid, 
+     >        '/page_reclaim_breakdown >> spD_tid_', tid, 
+     >        '.log'
+         ierr = system(command)
+!$omp end parallel
+
+         command = "cat /sys/fs/cgroup/swap_log/memory.swap.current"
+         ierr = system(command)
+      end subroutine cat_swap_breakdown
+
+c---------------------------------------------------------------------
+
+      subroutine write_swap_log_enable()
+         implicit none
+         integer :: ierr
+         character(len=128) :: command
+         integer :: system
+         
+         command = 'echo 1 > /proc/swap_log_ctl'
+         ierr = system(command)
+      end subroutine write_swap_log_enable
+
+c---------------------------------------------------------------------
+
+      subroutine write_swap_log_disable()
+         implicit none
+         integer :: ierr
+         character(len=128) :: command
+         integer :: system
+         
+         command = 'cat /proc/swap_log_ctl'
+         ierr = system(command)
+         
+         command = 'echo 0 > /proc/swap_log_ctl'
+         ierr = system(command)
+      end subroutine write_swap_log_disable
+
+c----- end of program ------------------------------------------------

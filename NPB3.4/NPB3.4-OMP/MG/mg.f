@@ -248,7 +248,7 @@ c---------------------------------------------------------------------
       old2 = rnm2
       oldu = rnmu
 
-      call execute_command(0)
+      call cat_swap_breakdown(0)
       call write_swap_log_enable()
 
       do  it=1,nit
@@ -272,7 +272,7 @@ c---------------------------------------------------------------------
    90    format('Iteration ',i3,' execution time: ',f10.6,' seconds')
          write(*, 90) it, elapsed_time
 
-         call execute_command(it)
+         call cat_swap_breakdown(it)
       enddo
 
       call write_swap_log_disable()
@@ -1453,7 +1453,7 @@ c---------------------------------------------------------------------
 
 c---------------------------------------------------------------------
 
-      subroutine execute_command(iteration)
+      subroutine cat_swap_breakdown(iteration)
          implicit none
          integer, intent(in) :: iteration
          character(len=256) :: command
@@ -1486,7 +1486,7 @@ c---------------------------------------------------------------------
 
          command = "cat /sys/fs/cgroup/swap_log/memory.swap.current"
          ierr = system(command)
-      end subroutine execute_command
+      end subroutine cat_swap_breakdown
 
 c---------------------------------------------------------------------
 
@@ -1496,7 +1496,7 @@ c---------------------------------------------------------------------
          character(len=128) :: command
          integer :: system
          
-         command = 'echo "1" > /proc/swap_log_ctl'
+         command = 'echo 1 > /proc/swap_log_ctl'
          ierr = system(command)
       end subroutine write_swap_log_enable
 
@@ -1508,7 +1508,10 @@ c---------------------------------------------------------------------
          character(len=128) :: command
          integer :: system
          
-         command = 'echo "0" > /proc/swap_log_ctl'
+         command = 'cat /proc/swap_log_ctl'
+         ierr = system(command)
+         
+         command = 'echo 0 > /proc/swap_log_ctl'
          ierr = system(command)
       end subroutine write_swap_log_disable
 

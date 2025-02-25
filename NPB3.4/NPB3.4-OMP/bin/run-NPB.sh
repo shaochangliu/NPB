@@ -28,6 +28,7 @@ do
 done
 
 mv *.log $RESULT_DIR
+cp /home/cc/swap_log.txt /home/cc/swap_log_$RESULT_DIR.txt
 echo $NEXT_SWITCH | sudo tee /sys/kernel/mm/lru_gen/enabled
 
 for thread in 8

@@ -1486,6 +1486,11 @@ c---------------------------------------------------------------------
 
          command = "cat /sys/fs/cgroup/swap_log/memory.swap.current"
          ierr = system(command)
+
+         write(command, '(A,I0,A)') 
+     >        'echo "Iteration: ', iteration, 
+     >        ' end" >> /home/cc/swap_log.txt'
+         ierr = system(command)
       end subroutine cat_swap_breakdown
 
 c---------------------------------------------------------------------

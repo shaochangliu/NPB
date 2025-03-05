@@ -380,7 +380,7 @@ void write_sp_info(FILE *fp, char class)
   else if (class == 'A') { problem_size = 64;  dt = "0.0015d0";  niter = 400; }
   else if (class == 'B') { problem_size = 102; dt = "0.001d0";   niter = 400; }
   else if (class == 'C') { problem_size = 162; dt = "0.00067d0"; niter = 400; }
-  else if (class == 'D') { problem_size = 408; dt = "0.00030d0"; niter = 500; }
+  else if (class == 'D') { problem_size = 408; dt = "0.00030d0"; niter = 20; }  // default: 500
   else if (class == 'E') { problem_size = 1020; dt = "0.0001d0"; niter = 500; }
   else if (class == 'F') { problem_size = 2560; dt = "0.15d-4";  niter = 500; }
   else {

@@ -31,7 +31,7 @@ else
     NEXT_SWITCH="y"
 fi
 
-echo 2 > /proc/swap_log_ctl
+echo 1 > /proc/swap_log_ctl
 
 for thread in 8
 do
@@ -45,10 +45,12 @@ do
     fi
 done
 
+echo 0 > /proc/swap_log_ctl
+
 if ls *.log 1> /dev/null 2>&1; then
     mv *.log $RESULT_DIR
 else
-    echo "No log files found to move"
+    echo "No per thread log files found to move"
 fi
 
 if [ -e /home/cc/swap_log.txt ]; then
@@ -58,7 +60,7 @@ else
 fi
 
 echo $NEXT_SWITCH | sudo tee /sys/kernel/mm/lru_gen/enabled
-echo 2 > /proc/swap_log_ctl
+echo 1 > /proc/swap_log_ctl
 
 for thread in 8
 do
@@ -71,3 +73,5 @@ do
         exit 1
     fi
 done
+
+echo 0 > /proc/swap_log_ctl

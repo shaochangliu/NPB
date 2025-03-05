@@ -11,7 +11,8 @@ OBJS = sp.o sp_data.o initialize.o exact_solution.o exact_rhs.o \
        set_constants.o adi.o rhs.o work_lhs$(BLK).o     \
        x_solve$(BLK).o ninvr.o y_solve$(BLK).o pinvr.o    \
        z_solve$(BLK).o tzetar.o add.o txinvr.o error.o verify.o  \
-       ${COMMON}/print_results.o ${COMMON}/timers.o ${COMMON}/wtime.o
+       ${COMMON}/print_results.o ${COMMON}/timers.o ${COMMON}/wtime.o \
+	   gettid.o
 
 include ../sys/make.common
 
@@ -30,6 +31,9 @@ exec: $(OBJS)
 
 .f.o:
 	${FCOMPILE} $<
+
+.c.o:
+	${CCOMPILE} $<
 
 blk_par.h: FORCE
 	sed -e 's/= 0/= $(BLKFAC)/' blk_par0.h > blk_par.h_wk

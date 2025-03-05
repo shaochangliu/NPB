@@ -244,34 +244,42 @@ c---------------------------------------------------------------------
          implicit none
          integer, intent(in) :: iteration
          character(len=256) :: command
-         integer :: pid, tid, ierr
+         integer :: pid, tid, ierr, omp_tid
          integer :: getpid
          integer :: system
+         integer :: gettid
+         external gettid
 !$       integer :: omp_get_thread_num
 !$       external omp_get_thread_num
 
          ! Get the process ID and thread ID
          pid = getpid()
-!$omp parallel private(command, tid, ierr)
-!$       tid = omp_get_thread_num()
+!$omp parallel private(command, tid, ierr, omp_tid)
+!$       omp_tid = omp_get_thread_num()
+         tid = gettid()
 
          ! Write iteration, PID, and TID to log file
          write(command, '(A,I0,A,I0,A)') 
      >        'echo "Iteration: ', iteration, 
-     >        '" >> spD_tid_', tid, 
+     >        '" >> spD_tid_', omp_tid, 
      >        '.log'
          ierr = system(command)
 
          ! Cat the page reclaim breakdown
          write(command, '(A,I0,A,I0,A,I0,A)') 
      >        'cat /proc/', pid, 
-     >        '/task/', tid + pid, 
-     >        '/page_reclaim_breakdown >> spD_tid_', tid, 
+     >        '/task/', tid, 
+     >        '/page_reclaim_breakdown >> spD_tid_', omp_tid, 
      >        '.log'
          ierr = system(command)
 !$omp end parallel
 
          command = "cat /sys/fs/cgroup/swap_log/memory.swap.current"
+         ierr = system(command)
+
+         write(command, '(A,I0,A)') 
+     >        'echo "Iteration: ', iteration, 
+     >        ' end" >> /home/cc/swap_log.txt'
          ierr = system(command)
       end subroutine cat_swap_breakdown
 
@@ -283,7 +291,7 @@ c---------------------------------------------------------------------
          character(len=128) :: command
          integer :: system
          
-         command = 'echo 1 > /proc/swap_log_ctl'
+         command = 'echo 2 > /proc/swap_log_ctl'
          ierr = system(command)
       end subroutine write_swap_log_enable
 

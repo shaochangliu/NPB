@@ -103,6 +103,7 @@ c---------------------------------------------------------------------
       implicit none
 
       integer ios
+      integer element_size
 
       integer IMAXP, JMAXP
       parameter (IMAXP=IMAX/2*2,JMAXP=JMAX/2*2)
@@ -128,6 +129,40 @@ c
          write(*,*) 'Error encountered in allocating space'
          stop
       endif
+
+      ! Print the memory addresses of dynamically allocated arrays
+      element_size = sizeof(u(1,1,1,1))
+         write(*,*) element_size, IMAXP, JMAXP, KMAX
+         write(*,*) 'Memory address of u: start =', loc(u),
+     >    ' end =',
+     >    loc(u) + 5_8 * (IMAXP+1) * (JMAXP+1) * KMAX * element_size
+         write(*,*) 'Memory address of us: start =', loc(us),
+     >    ' end =',
+     >    loc(us) + (IMAXP+1) * (JMAXP+1) * KMAX * element_size
+         write(*,*) 'Memory address of vs: start =', loc(vs),
+     >    ' end =',
+     >    loc(vs) + (IMAXP+1) * (JMAXP+1) * KMAX * element_size
+         write(*,*) 'Memory address of ws: start =', loc(ws),
+     >    ' end =',
+     >    loc(ws) + (IMAXP+1) * (JMAXP+1) * KMAX * element_size
+         write(*,*) 'Memory address of qs: start =', loc(qs),
+     >    ' end =',
+     >    loc(qs) + (IMAXP+1) * (JMAXP+1) * KMAX * element_size
+         write(*,*) 'Memory address of rho_i: start =', loc(rho_i),
+     >    ' end =',
+     >    loc(rho_i) + (IMAXP+1) * (JMAXP+1) * KMAX * element_size
+         write(*,*) 'Memory address of speed: start =', loc(speed),
+     >    ' end =',
+     >    loc(speed) + (IMAXP+1) * (JMAXP+1) * KMAX * element_size
+         write(*,*) 'Memory address of square: start =', loc(square),
+     >    ' end =',
+     >    loc(square) + (IMAXP+1) * (JMAXP+1) * KMAX * element_size
+         write(*,*) 'Memory address of rhs: start =', loc(rhs),
+     >    ' end =',
+     >    loc(rhs) + 5_8 * (IMAXP+1) * (JMAXP+1) * KMAX * element_size
+         write(*,*) 'Memory address of forcing: start =', loc(forcing),
+     >    ' end =',
+     >    loc(forcing) + 5_8*(IMAXP+1) * (JMAXP+1) * KMAX * element_size
 
       return
       end

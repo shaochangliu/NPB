@@ -121,12 +121,12 @@ c---------------------------------------------------------------------
 
       ! Print the memory addresses of u, v, r
       element_size = sizeof(u(1))
-      write(*,*) 'Memory address of u: start =', loc(u)
-      write(*,*) 'Memory address of v: start =', loc(v)
-      write(*,*) 'Memory address of r: start =', loc(r)
-      write(*,*) 'Allocated size of u:', nr * element_size
-      write(*,*) 'Allocated size of v:', nv * element_size
-      write(*,*) 'Allocated size of r:', nr * element_size
+         write(*,*) 'Memory address of u: start =', loc(u), ' end =',
+     >      loc(u) + nr * element_size
+         write(*,*) 'Memory address of v: start =', loc(v), ' end =',
+     >      loc(v) + nv * element_size
+         write(*,*) 'Memory address of r: start =', loc(r), ' end =',
+     >      loc(r) + nr * element_size
       
       return
       end
